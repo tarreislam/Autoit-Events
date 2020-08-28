@@ -6,27 +6,30 @@
 ```au3
 #include "Event.au3"
 
-_Event(__Event_CB_UserCreated, @IPAddress1)
+; Subscribe listeners
+_Event_Listen(UserCreatedEvent, SendWelcomeMail)
+_Event_Listen(UserCreatedEvent, RegisterNewsLetter)
 
-Func __Event_CB_UserCreated(Const ByRef $oEvent)
-	; Register listeners for event
-	$oEvent.add("listeners", 'SendWelcomeMail,RegisterNewsLetter')
 
-	; add whatever you want
-	$oEvent.add("name", @UserName)
-	; Payload cannot be overridden
-	$oEvent.add("payload", "This wont be used")
+; Fire event
+_Event(UserCreatedEvent, @UserName, "tarre.islam@gmail.com")
+
+
+Func UserCreatedEvent(Const ByRef $oEvent, $name, $email)
+	; via $oEvent you can pass data to its listeners
+	$oEvent.add("name", $name)
+	$oEvent.add("email", $email)
+	$oEvent.add("id", 1)
 EndFunc
 
 
-Func __Event_CB_UserCreated_SendWelcomeMail(Const $oEvent)
-	MsgBox(0,0,$oEvent.item("name"))
+Func SendWelcomeMail(Const $oEvent)
+	MsgBox(64, "Welcome mail sent", "Welcome mail sent to " & $oEvent.item("name") & " with email " & $oEvent.item("email"))
 EndFunc
 
 
-Func __Event_CB_UserCreated_RegisterNewsLetter(Const $oEvent)
-	MsgBox(0,0,$oEvent.item("payload"))
+Func RegisterNewsLetter(Const $oEvent)
+	MsgBox(64, "News letter registred", "News letter bound to user id " & $oEvent.item("id"))
 EndFunc
-
 
 ```

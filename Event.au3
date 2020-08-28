@@ -19,62 +19,134 @@
 #AutoIt3Wrapper_Au3Check_Parameters=-q -d -w 1 -w 2 -w 3 -w- 4 -w 5 -w 6 -w 7
 #include-once
 
+Global Const $g__Event_Listeners = ObjCreate("Scripting.Dictionary")
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _Event
-; Description ...: A simple event dispatcher, inspired from Laravel's observer events
-; Syntax ........: _Event(Const $sEventName[, $payload = Null])
-; Parameters ....: $sEventName          - [const] a user defined function.
-;                  $payload             - [optional] mixed value. Default is Null.
-; Return values .: True if no error occured. @error 1 = $sEventName is not a valid function callback, @error 2 = One or more listeners failed to be invoked
-; Author ........: TarreTarreTarre
+; Description ...: Dispatch an event with up to 6 params
+; Syntax ........: _Event(Const $callableEvent[, $p1 = Default[, $p2 = Default[, $p3 = Default[, $p4 = Default[, $p5 = Default[,
+;                  $p6 = Default]]]]]])
+; Parameters ....: $callableEvent          - [const] an unknown value.
+;                  $p1                  - [optional] a pointer value. Default is Default.
+;                  $p2                  - [optional] a pointer value. Default is Default.
+;                  $p3                  - [optional] a pointer value. Default is Default.
+;                  $p4                  - [optional] a pointer value. Default is Default.
+;                  $p5                  - [optional] a pointer value. Default is Default.
+;                  $p6                  - [optional] a pointer value. Default is Default.
+; Return values .: None
+; Author ........: Your Name
 ; Modified ......:
-; Remarks .......: If @error = 2, @extended will display how many events failed
-; Related .......:
+; Remarks .......:
+; Related .......: _Event_Listen
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Event(Const $sEventName, Const $payload = Null)
+Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Const $p3 = Default, Const $p4 = Default, Const $p5 = Default, Const $p6 = Default)
 
-	If Not IsFunc($sEventName) Then Return SetError(1, 0, False)
+	Local Const $oObj = ObjCreate("Scripting.Dictionary")
+	Local Const $sEventName = FuncName($callableEvent)
 
-	; Define empty object and the string name of our event
-	Local Const $oEvent = ObjCreate("Scripting.Dictionary")
-	Local Const $sFuncName = FuncName($sEventName)
+	; Invoke event
+	Switch @NumParams - 1 ; -1 to exclude eventName
+		Case 0
+			$callableEvent($oObj)
+		Case 1
+			$callableEvent($oObj, $p1)
+		Case 2
+			$callableEvent($oObj, $p1, $p2)
+		Case 3
+			$callableEvent($oObj, $p1, $p2, $p3)
+		Case 4
+			$callableEvent($oObj, $p1, $p2, $p3, $p4)
+		Case 5
+			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
+		Case 6
+			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5, $p6)
+	EndSwitch
 
-	; Invoke user defined event
-	$sEventName($oEvent)
+	; Get listeners for the given event
+	Local Const $listeners = $g__Event_Listeners.item($sEventName).items()
 
-	; Override payload
-	If $oEvent.exists("payload") Then $oEvent.remove("payload")
-	$oEvent.add("payload", $payload)
-
-	; Look for listeners
-	Local Const $aListeners = StringSplit($oEvent.item("listeners"), ",")
-
-	; define failiure counter
-	Local $nFailures = 0
-
-	; Loop thru all event listener
-	For $i = 1 To $aListeners[0]
-
-		; Define listener callback string
-		Local $sListenerFuncName = $sFuncName & "_" & $aListeners[$i]
-
-		; Invoke event listener
-		Call($sListenerFuncName, $oEvent)
-
-		; Report errors
-		If @error == 0xDEAD And @extended == 0xBEEF Then
-			$nFailures += 1
-		EndIf
+	; Invoke the listener with our ScriptingDictionary
+	For $listener In $listeners
+		Call($listener, $oObj)
 	Next
 
-	; Destruct event object
-	$oEvent.removeAll()
 
-	; report any failures
-	If $nFailures > 0 Then Return SetError(2, $nFailures, False)
-
-	Return True
 EndFunc   ;==>_Event
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Event_Listen
+; Description ...: Subscribe an listener to a given event
+; Syntax ........: _Event_Listen(Const $callableEvent, Const $callableListener)
+; Parameters ....: $callableEvent       - [const] an unknown value.
+;                  $callableListener    - [const] an unknown value.
+; Return values .: None
+; Author ........: TarreTarreTarre
+; Modified ......:
+; Remarks .......:
+; Related .......: _Event_Remove, _Event_RemoveAll
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Event_Listen(Const $callableEvent, Const $callableListener)
+
+	Local Const $eventName = FuncName($callableEvent)
+	Local Const $listenerName = FuncName($callableListener)
+
+	Local $object
+
+	; Look for storage
+	If $g__Event_Listeners.exists($eventName) Then
+		$object = $g__Event_Listeners.item($eventName)
+	Else
+		$object = ObjCreate("Scripting.Dictionary")
+		$g__Event_Listeners.add($eventName, $object)
+	EndIf
+
+	; Add event listener to object (If not added)
+	If Not $object.exists($listenerName) Then
+		$object.add($listenerName, $listenerName)
+	EndIf
+
+EndFunc   ;==>_Event_Listen
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Event_RemoveAll
+; Description ...: Remove all listeners previously set by _Event_Listen
+; Syntax ........: _Event_RemoveAll()
+; Parameters ....:
+; Return values .: None
+; Author ........: TarreTarreTarre
+; Modified ......:
+; Remarks .......:
+; Related .......: _Event_Listen, _Event_Remove
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Event_RemoveAll()
+	$g__Event_Listeners.removeAll()
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Event_Remove
+; Description ...: Remove a specified listener
+; Syntax ........: _Event_Remove(Const $callableEvent)
+; Parameters ....: $callableEvent       - [const] an unknown value.
+; Return values .: None
+; Author ........: TarreTarre
+; Modified ......:
+; Remarks .......:
+; Related .......: _Event_Listen, _Event_RemoveAll
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Event_Remove(Const $callableEvent)
+	Local Const $eventName = FuncName($callableEvent)
+
+	If $g__Event_Listeners.exists($eventName) Then
+		$g__Event_Listeners.remove($eventName)
+	EndIf
+
+EndFunc
