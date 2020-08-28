@@ -127,7 +127,7 @@ EndFunc   ;==>_Event_Listen
 ; ===============================================================================================================================
 Func _Event_RemoveAll()
 	$g__Event_Listeners.removeAll()
-EndFunc
+EndFunc   ;==>_Event_RemoveAll
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _Event_Remove
@@ -149,4 +149,4 @@ Func _Event_Remove(Const $callableEvent)
 		$g__Event_Listeners.remove($eventName)
 	EndIf
 
-EndFunc
+EndFunc   ;==>_Event_Remove
