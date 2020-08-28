@@ -114,7 +114,7 @@ EndFunc   ;==>_Event_Listen
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _Event_RemoveAll
-; Description ...: Remove all listeners previously set by _Event_Listen
+; Description ...: Remove all events and their respective listeners
 ; Syntax ........: _Event_RemoveAll()
 ; Parameters ....:
 ; Return values .: None
@@ -131,7 +131,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _Event_Remove
-; Description ...: Remove a specified listener
+; Description ...: Remove a specified event with all its listeners
 ; Syntax ........: _Event_Remove(Const $callableEvent)
 ; Parameters ....: $callableEvent       - [const] an unknown value.
 ; Return values .: None
