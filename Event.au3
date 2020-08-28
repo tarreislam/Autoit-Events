@@ -42,38 +42,39 @@ Global Const $g__Event_Listeners = ObjCreate("Scripting.Dictionary")
 ; Example .......: No
 ; ===============================================================================================================================
 Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Const $p3 = Default, Const $p4 = Default, Const $p5 = Default, Const $p6 = Default)
+	Local Const $sEventName = FuncName($callableEvent)
+
+	; Grab events
+	Local Const $EventListeners = $g__Event_Listeners.item($sEventName)
+	; Dont bother if no event listeners are present
+
+	If Not $EventListeners.count() Then Return
 
 	Local Const $oObj = ObjCreate("Scripting.Dictionary")
-	Local Const $sEventName = FuncName($callableEvent)
-	Local $res
 
 	; Invoke event
 	Switch @NumParams - 1 ; -1 to exclude eventName
 		Case 0
-			$res = $callableEvent($oObj)
+			$callableEvent($oObj)
 		Case 1
-			$res = $callableEvent($oObj, $p1)
+			$callableEvent($oObj, $p1)
 		Case 2
-			$res = $callableEvent($oObj, $p1, $p2)
+			$callableEvent($oObj, $p1, $p2)
 		Case 3
-			$res = $callableEvent($oObj, $p1, $p2, $p3)
+			$callableEvent($oObj, $p1, $p2, $p3)
 		Case 4
-			$res = $callableEvent($oObj, $p1, $p2, $p3, $p4)
+			 $callableEvent($oObj, $p1, $p2, $p3, $p4)
 		Case 5
-			$res = $callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
+			 $callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
 		Case 6
-			$res = $callableEvent($oObj, $p1, $p2, $p3, $p4, $p5, $p6)
+			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5, $p6)
 	EndSwitch
 
-	; Get listeners for the given event
-	Local Const $listeners = $g__Event_Listeners.item($sEventName).items()
 
 	; Invoke the listener with our ScriptingDictionary
-	For $listener In $listeners
+	For $listener In $EventListeners.items()
 		$listener($oObj)
 	Next
-
-	Return $res
 
 EndFunc   ;==>_Event
 
