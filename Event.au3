@@ -44,6 +44,9 @@ Global Const $g__Event_Listeners = ObjCreate("Scripting.Dictionary")
 Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Const $p3 = Default, Const $p4 = Default, Const $p5 = Default, Const $p6 = Default)
 	Local Const $sEventName = FuncName($callableEvent)
 
+	; Se if the event is regisred at least once
+	If Not $g__Event_Listeners.exists($sEventName) Then Return
+
 	; Grab events
 	Local Const $EventListeners = $g__Event_Listeners.item($sEventName)
 	; Dont bother if no event listeners are present
@@ -63,9 +66,9 @@ Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Cons
 		Case 3
 			$callableEvent($oObj, $p1, $p2, $p3)
 		Case 4
-			 $callableEvent($oObj, $p1, $p2, $p3, $p4)
+			$callableEvent($oObj, $p1, $p2, $p3, $p4)
 		Case 5
-			 $callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
+			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
 		Case 6
 			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5, $p6)
 	EndSwitch
