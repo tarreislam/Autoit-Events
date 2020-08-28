@@ -92,8 +92,8 @@ EndFunc   ;==>_Event
 ; ===============================================================================================================================
 Func _Event_Listen(Const $callableEvent, Const $callableListener)
 
-	Local Const $eventName = FuncName($callableEvent)
-	Local Const $listenerName = FuncName($callableListener)
+	Local Const $eventName = IsFunc($callableEvent) ? FuncName($callableEvent) : StringUpper($callableEvent)
+	Local Const $listenerName = IsFunc($callableListener) ? FuncName($callableListener) : $callableListener
 
 	Local $object
 
