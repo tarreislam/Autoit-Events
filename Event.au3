@@ -37,7 +37,7 @@ Global Const $g__Event_Listeners = ObjCreate("Scripting.Dictionary")
 ; Author ........: Your Name
 ; Modified ......:
 ; Remarks .......:
-; Related .......: _Event_Listen, _EventByref
+; Related .......: _Event_Listen
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
@@ -45,23 +45,24 @@ Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Cons
 
 	Local Const $oObj = ObjCreate("Scripting.Dictionary")
 	Local Const $sEventName = FuncName($callableEvent)
+	Local $res
 
 	; Invoke event
 	Switch @NumParams - 1 ; -1 to exclude eventName
 		Case 0
-			$callableEvent($oObj)
+			$res = $callableEvent($oObj)
 		Case 1
-			$callableEvent($oObj, $p1)
+			$res = $callableEvent($oObj, $p1)
 		Case 2
-			$callableEvent($oObj, $p1, $p2)
+			$res = $callableEvent($oObj, $p1, $p2)
 		Case 3
-			$callableEvent($oObj, $p1, $p2, $p3)
+			$res = $callableEvent($oObj, $p1, $p2, $p3)
 		Case 4
-			$callableEvent($oObj, $p1, $p2, $p3, $p4)
+			$res = $callableEvent($oObj, $p1, $p2, $p3, $p4)
 		Case 5
-			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
+			$res = $callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
 		Case 6
-			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5, $p6)
+			$res = $callableEvent($oObj, $p1, $p2, $p3, $p4, $p5, $p6)
 	EndSwitch
 
 	; Get listeners for the given event
@@ -72,60 +73,7 @@ Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Cons
 		$listener($oObj)
 	Next
 
-
-EndFunc   ;==>_Event
-
-; #FUNCTION# ====================================================================================================================
-; Name ..........: _EventByref
-; Description ...: Dispatch an event with up to 6 params
-; Syntax ........: _EventByref(Const $callableEvent[, $p1 = Default[, $p2 = Default[, $p3 = Default[, $p4 = Default[, $p5 = Default[,
-;                  $p6 = Default]]]]]])
-; Parameters ....: $callableEvent          - [const] an unknown value.
-;                  $p1                  - [optional] a pointer value. Default is Default.
-;                  $p2                  - [optional] a pointer value. Default is Default.
-;                  $p3                  - [optional] a pointer value. Default is Default.
-;                  $p4                  - [optional] a pointer value. Default is Default.
-;                  $p5                  - [optional] a pointer value. Default is Default.
-;                  $p6                  - [optional] a pointer value. Default is Default.
-; Return values .: None
-; Author ........: Your Name
-; Modified ......:
-; Remarks .......:
-; Related .......: _Event_Listen, _Event
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func _EventByref(Const $callableEvent, ByRef $p1 = Default, ByRef $p2 = Default, ByRef $p3 = Default, ByRef $p4 = Default, ByRef $p5 = Default, ByRef $p6 = Default)
-
-	Local Const $oObj = ObjCreate("Scripting.Dictionary")
-	Local Const $sEventName = FuncName($callableEvent)
-
-	; Invoke event
-	Switch @NumParams - 1 ; -1 to exclude eventName
-		Case 0
-			$callableEvent($oObj)
-		Case 1
-			$callableEvent($oObj, $p1)
-		Case 2
-			$callableEvent($oObj, $p1, $p2)
-		Case 3
-			$callableEvent($oObj, $p1, $p2, $p3)
-		Case 4
-			$callableEvent($oObj, $p1, $p2, $p3, $p4)
-		Case 5
-			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5)
-		Case 6
-			$callableEvent($oObj, $p1, $p2, $p3, $p4, $p5, $p6)
-	EndSwitch
-
-	; Get listeners for the given event
-	Local Const $listeners = $g__Event_Listeners.item($sEventName).items()
-
-	; Invoke the listener with our ScriptingDictionary
-	For $listener In $listeners
-		$listener($oObj)
-	Next
-
+	Return $res
 
 EndFunc   ;==>_Event
 
