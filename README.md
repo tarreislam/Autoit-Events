@@ -1,5 +1,6 @@
 ## About AutoIt-Events
-**AutoIt-Events** is a a Event observer inspired from laravels Event observer.
+
+**AutoIt-Events** is an event Observer and is a core dependency for [Autoit-Socket-IO](https://github.com/tarreislam/Autoit-Socket-IO) but can be used for any Autoit project.
 
 
 ### Example

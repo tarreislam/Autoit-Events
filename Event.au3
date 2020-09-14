@@ -34,7 +34,7 @@ Global Const $g__Event_Listeners = ObjCreate("Scripting.Dictionary")
 ;                  $p5                  - [optional] a pointer value. Default is Default.
 ;                  $p6                  - [optional] a pointer value. Default is Default.
 ; Return values .: None
-; Author ........: Your Name
+; Author ........: TarreTarreTarre
 ; Modified ......:
 ; Remarks .......:
 ; Related .......: _Event_Listen
@@ -42,6 +42,7 @@ Global Const $g__Event_Listeners = ObjCreate("Scripting.Dictionary")
 ; Example .......: No
 ; ===============================================================================================================================
 Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Const $p3 = Default, Const $p4 = Default, Const $p5 = Default, Const $p6 = Default)
+
 	Local Const $sEventName = FuncName($callableEvent)
 
 	; Se if the event is regisred at least once
@@ -49,8 +50,8 @@ Func _Event(Const $callableEvent, Const $p1 = Default, Const $p2 = Default, Cons
 
 	; Grab events
 	Local Const $EventListeners = $g__Event_Listeners.item($sEventName)
-	; Dont bother if no event listeners are present
 
+	; Dont bother if no event listeners are present
 	If Not $EventListeners.count() Then Return
 
 	Local Const $oObj = ObjCreate("Scripting.Dictionary")
@@ -92,7 +93,7 @@ EndFunc   ;==>_Event
 ; Author ........: TarreTarreTarre
 ; Modified ......:
 ; Remarks .......:
-; Related .......: _Event_Remove, _Event_RemoveAll
+; Related .......: _Event_Remove, _Event_RemoveAll, _Event_RemoveListener
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
@@ -127,7 +128,7 @@ EndFunc   ;==>_Event_Listen
 ; Author ........: TarreTarreTarre
 ; Modified ......:
 ; Remarks .......:
-; Related .......: _Event_Listen, _Event_Remove
+; Related .......: _Event_Listen, _Event_Remove, _Event_RemoveListener
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
@@ -140,19 +141,58 @@ EndFunc   ;==>_Event_RemoveAll
 ; Description ...: Remove a specified event with all its listeners
 ; Syntax ........: _Event_Remove(Const $callableEvent)
 ; Parameters ....: $callableEvent       - [const] an unknown value.
-; Return values .: None
-; Author ........: TarreTarre
+; Return values .: True if an event was found, @error set and false if no event was found
+; Author ........: TarreTarreTarre
 ; Modified ......:
 ; Remarks .......:
-; Related .......: _Event_Listen, _Event_RemoveAll
+; Related .......: _Event_Listen, _Event_RemoveAll, _Event_RemoveListener
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func _Event_Remove(Const $callableEvent)
-	Local Const $eventName = FuncName($callableEvent)
+
+	Local Const $eventName = IsFunc($callableEvent) ? FuncName($callableEvent) : StringUpper($callableEvent)
 
 	If $g__Event_Listeners.exists($eventName) Then
 		$g__Event_Listeners.remove($eventName)
+		Return True
 	EndIf
 
+	Return SetError(1, 0, False)
+
 EndFunc   ;==>_Event_Remove
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _Event_RemoveListener
+; Description ...: Remove a listener from an event (Does not remove the event itself)
+; Syntax ........: _Event_RemoveListener(Const $callableEvent, $callableListener)
+; Parameters ....: $callableEvent       - [const] an unknown value.
+;                  $callableListener    - an unknown value.
+; Return values .: True if an event was found, @error set and false if no event/listener was found
+; Author ........: TarreTarreTarre
+; Modified ......:
+; Remarks .......: Error 1 = event not found. Error 2 = event found, but listener was not found
+; Related .......: _Event_Listen, _Event_RemoveAll, _Event_Remove
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Event_RemoveListener(Const $callableEvent, $callableListener)
+	Local Const $eventName = IsFunc($callableEvent) ? FuncName($callableEvent) : StringUpper($callableEvent)
+	Local Const $listenerName = IsFunc($callableListener) ? FuncName($callableListener) : $callableListener
+
+	; look for event
+	If $g__Event_Listeners.exists($eventName) Then
+
+		; Look for listener
+		If $g__Event_Listeners.exists($eventName).exists($listenerName) Then
+			$g__Event_Listeners.exists($eventName).remove($listenerName)
+			Return True
+		EndIf
+
+		Return SetError(2, 0, False)
+
+	EndIf
+
+	Return SetError(1, 0, False)
+
+EndFunc
