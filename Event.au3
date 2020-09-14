@@ -22,6 +22,23 @@
 Global Const $g__Event_Listeners = ObjCreate("Scripting.Dictionary")
 
 ; #FUNCTION# ====================================================================================================================
+; Name ..........: _Event_GetAll
+; Description ...: Return all events
+; Syntax ........: _Event_GetAll()
+; Parameters ....:
+; Return values .: All registred events
+; Author ........: TarreTarreTarre
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _Event_GetAll()
+	Return $g__Event_Listeners
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name ..........: _Event
 ; Description ...: Dispatch an event with up to 6 params
 ; Syntax ........: _Event(Const $callableEvent[, $p1 = Default[, $p2 = Default[, $p3 = Default[, $p4 = Default[, $p5 = Default[,
@@ -89,7 +106,7 @@ EndFunc   ;==>_Event
 ; Syntax ........: _Event_Listen(Const $callableEvent, Const $callableListener)
 ; Parameters ....: $callableEvent       - [const] an unknown value.
 ;                  $callableListener    - [const] an unknown value.
-; Return values .: None
+; Return values .: True if event+listener was successfully registred, error if the listener is already registred
 ; Author ........: TarreTarreTarre
 ; Modified ......:
 ; Remarks .......:
@@ -100,7 +117,7 @@ EndFunc   ;==>_Event
 Func _Event_Listen(Const $callableEvent, Const $callableListener)
 
 	Local Const $eventName = IsFunc($callableEvent) ? FuncName($callableEvent) : StringUpper($callableEvent)
-	Local Const $listenerName = IsFunc($callableListener) ? FuncName($callableListener) : $callableListener
+	Local Const $listenerName = IsFunc($callableListener) ? FuncName($callableListener) : StringUpper($callableListener)
 
 	Local $object
 
@@ -115,7 +132,10 @@ Func _Event_Listen(Const $callableEvent, Const $callableListener)
 	; Add event listener to object (If not added)
 	If Not $object.exists($listenerName) Then
 		$object.add($listenerName, $callableListener)
+		Return True
 	EndIf
+
+	Return SetError(1, 0, False)
 
 EndFunc   ;==>_Event_Listen
 
@@ -176,16 +196,16 @@ EndFunc   ;==>_Event_Remove
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _Event_RemoveListener(Const $callableEvent, $callableListener)
+Func _Event_RemoveListener(Const $callableEvent, Const $callableListener)
 	Local Const $eventName = IsFunc($callableEvent) ? FuncName($callableEvent) : StringUpper($callableEvent)
-	Local Const $listenerName = IsFunc($callableListener) ? FuncName($callableListener) : $callableListener
+	Local Const $listenerName = IsFunc($callableListener) ? FuncName($callableListener) : StringUpper($callableListener)
 
 	; look for event
 	If $g__Event_Listeners.exists($eventName) Then
 
 		; Look for listener
-		If $g__Event_Listeners.exists($eventName).exists($listenerName) Then
-			$g__Event_Listeners.exists($eventName).remove($listenerName)
+		If $g__Event_Listeners.item($eventName).exists($listenerName) Then
+			$g__Event_Listeners.item($eventName).remove($listenerName)
 			Return True
 		EndIf
 
